@@ -3,24 +3,32 @@ const addButton = document.getElementById('add-note-button');
 const notesContainer = document.getElementById('notes-container');
 const toggleThemeButton = document.getElementById('toggle-theme-button');
 const body = document.body;
-const colors = ['note-yellow'];
 
+const colors = ['note-yellow', 'note-blue', 'note-pink'];
+
+/**
+ * Crea un elemento DOM para una nota.
+ * @param {string} text - Es el texto de la nota
+ * @param {string} colorClass - Es la clase CSS que define el color de la nota
+ * @return {HTMLElement} Es el elemento div de la nota creada.
+ */
 function createNoteElement(text, colorClass) {
     const noteDiv = document.createElement('div');
-    noteDiv.classList.add('note', colorClass); 
+    noteDiv.classList.add('note', colorClass);
     noteDiv.textContent = text;
-
+    
     const deleteButton = document.createElement('span');
     deleteButton.classList.add('delete-btn');
     deleteButton.textContent = 'x';
-
     noteDiv.appendChild(deleteButton);
+    
     return noteDiv;
 }
 
 function loadNotes() {
-    const storedNotes = [];
+    const storedNotes = localStorage.getItem('notes');
     console.log(storedNotes);
+    
     if (storedNotes) {
         const notes = JSON.parse(storedNotes);
         notes.forEach(noteData => {
@@ -28,6 +36,27 @@ function loadNotes() {
             notesContainer.appendChild(newNote);
         });
     }
+}
+
+function saveNotes() {
+    const notes = [];
+    document.querySelectorAll('.note').forEach(noteElement => {
+        
+        const noteText = noteElement.textContent.slice(0, -1);
+        
+        
+        let colorClass = '';
+        if (noteElement.classList.contains('note-yellow')) colorClass = 'note-yellow';
+        else if (noteElement.classList.contains('note-blue')) colorClass = 'note-blue';
+        else if (noteElement.classList.contains('note-pink')) colorClass = 'note-pink';
+        
+        notes.push({
+            text: noteText,
+            color: colorClass
+        });
+    });
+    
+    localStorage.setItem('notes', JSON.stringify(notes));
 }
 
 function setInitialTheme() {
@@ -52,15 +81,15 @@ toggleThemeButton.addEventListener('click', () => {
 notesContainer.addEventListener('dblclick', (event) => {
     const target = event.target;
     if (target.classList.contains('note')) {
-        const currentText = target.textContent.slice(0, -1);
+        const currentText = target.textContent.slice(0, -1); 
         target.textContent = '';
         target.classList.add('editing');
-
+        
         const textarea = document.createElement('textarea');
         textarea.value = currentText;
         target.appendChild(textarea);
         textarea.focus();
-
+        
         function saveEdit() {
             const newText = textarea.value.trim();
             target.textContent = newText;
@@ -70,9 +99,10 @@ notesContainer.addEventListener('dblclick', (event) => {
             deleteButton.classList.add('delete-btn');
             deleteButton.textContent = 'x';
             target.appendChild(deleteButton);
-
+            
             saveNotes();
         }
+        
         textarea.addEventListener('blur', saveEdit);
         textarea.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -89,8 +119,7 @@ addButton.addEventListener('click', () => {
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const newNote = createNoteElement(noteText, randomColor);
         notesContainer.appendChild(newNote);
-        const newNoteErr = createNoteElement(noteText, randomColor);
-        notesContainer.appendChild(newNoteErr);
+        
         noteInput.value = '';
         addButton.disabled = true;
         saveNotes();
@@ -101,18 +130,6 @@ notesContainer.addEventListener('click', (event) => {
     if (event.target.classList.contains('delete-btn')) {
         event.target.parentElement.remove();
         saveNotes();
-    }
-});
-
-notesContainer.addEventListener('mouseover', (event) => {
-    if (event.target.classList.contains('note')) {
-        event.target.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)';
-    }
-});
-
-notesContainer.addEventListener('mouseout', (event) => {
-    if (event.target.classList.contains('note')) {
-        event.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
     }
 });
 
