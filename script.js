@@ -25,6 +25,10 @@ function createNoteElement(text, colorClass) {
     return noteDiv;
 }
 
+/**
+ * Carga las notas guardadas en el navegador desde la última visita.
+ * @summary Lee el 'localStorage' y muestra las notas en la página.
+ */
 function loadNotes() {
     const storedNotes = localStorage.getItem('notes');
     console.log(storedNotes);
@@ -38,12 +42,15 @@ function loadNotes() {
     }
 }
 
+/**
+ * Guarda todas las notas que están actualmente en la página.
+ * @summary Almacena las notas en el 'localStorage' para que no se pierdan al recargar.
+ */
 function saveNotes() {
     const notes = [];
     document.querySelectorAll('.note').forEach(noteElement => {
         
         const noteText = noteElement.textContent.slice(0, -1);
-        
         
         let colorClass = '';
         if (noteElement.classList.contains('note-yellow')) colorClass = 'note-yellow';
@@ -59,6 +66,10 @@ function saveNotes() {
     localStorage.setItem('notes', JSON.stringify(notes));
 }
 
+/**
+ * Establece el modo oscuro si el usuario lo tenía activado.
+ * @summary Lee la preferencia del 'localStorage' y aplica la clase CSS 'dark-mode'.
+ */
 function setInitialTheme() {
     const isDarkMode = localStorage.getItem('isDarkMode') === 'true';
     if (isDarkMode) {
@@ -67,10 +78,12 @@ function setInitialTheme() {
     }
 }
 
+// Desactiva el botón de añadir si el campo de texto de la nota se encuentra en blanco.
 noteInput.addEventListener('input', () => {
     addButton.disabled = noteInput.value.trim() === '';
 });
 
+// Cambia el tema de la página entre claro y oscuro al hacer clic en el botón.
 toggleThemeButton.addEventListener('click', () => {
     body.classList.toggle('dark-mode');
     const isDarkMode = body.classList.contains('dark-mode');
@@ -78,6 +91,7 @@ toggleThemeButton.addEventListener('click', () => {
     toggleThemeButton.textContent = isDarkMode ? 'Modo Claro' : 'Modo Oscuro';
 });
 
+// Deja editar una nota al hacer doble clic en ella.
 notesContainer.addEventListener('dblclick', (event) => {
     const target = event.target;
     if (target.classList.contains('note')) {
@@ -113,6 +127,7 @@ notesContainer.addEventListener('dblclick', (event) => {
     }
 });
 
+// Añade una nueva nota al hacer click en el botón.
 addButton.addEventListener('click', () => {
     const noteText = noteInput.value.trim();
     if (noteText !== '') {
@@ -126,6 +141,7 @@ addButton.addEventListener('click', () => {
     }
 });
 
+// Elimina una nota al hacer clic en el botón de X
 notesContainer.addEventListener('click', (event) => {
     if (event.target.classList.contains('delete-btn')) {
         event.target.parentElement.remove();
@@ -133,5 +149,6 @@ notesContainer.addEventListener('click', (event) => {
     }
 });
 
+// Al cargar la página, establece el tema y carga las notas guardadas.
 setInitialTheme();
 loadNotes();
